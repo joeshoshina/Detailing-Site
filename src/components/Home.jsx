@@ -12,9 +12,11 @@ const Home = () => {
         style={{ backgroundImage: `url(${heroImg})` }}
       >
         <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center md:px-20 px-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-white text-center pb-3">
-            Premium Mobile Auto Detailing Across the San Fernando Valley — Shine
-            That Lasts”
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center pb-3 leading-tight">
+            Premium Mobile Auto Detailing Across{" "}
+            <br className="block sm:hidden" />{" "}
+            {/* line break only on small screens */}
+            the San Fernando Valley — Shine That Lasts
           </h1>
           {/* Book now button */}
           <button onClick={setBook} className="bg-white px-2 rounded-lg">
