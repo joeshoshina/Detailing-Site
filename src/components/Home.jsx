@@ -23,13 +23,12 @@ const Home = () => {
           {/* Phone number */}
         </div>
       </section>
-      <p className="py-20 text-lg justify-center max-w-2xl mx-auto text-gray-800">
-        Rich’s Mobile Detailing provides professional, convenient car care
-        across the San Fernando Valley. Whether you need a quick exterior wash,
-        a full interior clean, or complete paint correction, we bring
-        top-quality detailing right to your driveway. Our mission is simple —
-        keep your car spotless, shiny, and looking its best, without you ever
-        leaving home.
+      <p className="py-20 px-8 text-lg justify-center max-w-2xl mx-auto text-gray-700">
+        CR Auto Detailing provides professional, convenient car care across the
+        San Fernando Valley. Whether you need a quick exterior wash, a full
+        interior clean, or complete paint correction, we bring top-quality
+        detailing right to your driveway. Our mission is simple — keep your car
+        spotless, shiny, and looking its best, without you ever leaving home.
       </p>
     </div>
   );
