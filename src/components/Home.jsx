@@ -1,9 +1,6 @@
-import { useState } from "react";
 import heroImg from "../assets/hero.png";
 
 const Home = () => {
-  const [book, setBook] = useState(false);
-
   return (
     <div className="flex flex-col">
       <section
@@ -19,9 +16,12 @@ const Home = () => {
             the San Fernando Valley — Shine That Lasts
           </h1>
           {/* Book now button */}
-          <button onClick={setBook} className="bg-white px-2 rounded-lg">
-            Book Now!
-          </button>
+          <a
+            href="/book"
+            className="bg-white text-black px-4 py-1 rounded-lg hover:border hover:border-white hover:text-white hover:bg-gradient-to-br from-[#0a1625] via-[#053a57] to-[#070d16] transition"
+          >
+            Book Now
+          </a>
           {/* Phone number */}
         </div>
       </section>
