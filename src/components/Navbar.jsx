@@ -59,7 +59,7 @@ const Navbar = () => {
 
         {/* ----- Desktop Navigation (hidden on small screens) ----- */}
         <nav className="hidden md:flex space-x-8">
-          {["Home", "About Us", "Our Services", "Previous Work"].map(
+          {["Home", "About Us", "Our Services", "Gallery"].map(
             (item, index) => {
               const link =
                 index === 0
@@ -68,7 +68,7 @@ const Navbar = () => {
                   ? "#about"
                   : index === 2
                   ? "#services"
-                  : "#pastwork";
+                  : "/gallery";
               return (
                 <a
                   key={item}
@@ -112,7 +112,7 @@ const Navbar = () => {
             { name: "Home", id: "#home" },
             { name: "About Us", id: "#about" },
             { name: "Our Services", id: "#services" },
-            { name: "Previous Work", id: "#pastwork" },
+            { name: "Gallery", id: "/gallery" },
           ].map(({ name, id }) => (
             <a
               key={name}
