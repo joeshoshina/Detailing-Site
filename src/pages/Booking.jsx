@@ -20,13 +20,13 @@ const Booking = () => {
         </Link>
       </div>
 
-      {/* --- Booking Section (maybe button at fixed spot) --- */}
+      {/* --- Booking Section --- */}
       <div className="w-full max-w-3xl p-4 pt-40 pb-20 flex flex-col items-center">
         <h1 className="text-3xl font-bold mb-10 text-center">
           Book an Appointment
         </h1>
         <iframe
-          src="https://testingut2w.setmore.com"
+          src="https://crautodetailingbjo3.setmore.com"
           className="w-full h-[700px] border-none rounded-xl shadow-lg"
           title="Setmore Booking"
         ></iframe>
