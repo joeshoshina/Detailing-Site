@@ -29,7 +29,7 @@ const ServiceModal = ({ service, onClose }) => {
     // - semi-transparent black background to keep focus on modal
     // - backdrop blur creates modern "frosted glass" look
     // - flexbox centers the modal vertically and horizontally
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center z-50">
       {/* Modal container */}
       {/* 
         - White background card with rounded corners and shadow for depth
