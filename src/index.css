@@ -1,1 +1,9 @@
 @import "tailwindcss";
+section {
+  scroll-margin-top: 6rem;
+}
+@media (max-width: 768px) {
+  section {
+    scroll-margin-top: 4.5rem;
+  }
+}
