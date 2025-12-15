@@ -332,6 +332,6 @@ function PostModal({ post, onClose }) {
       `}</style>
     </div>
   );
-}
+} // bug when readmore is clicked image shifts position
 
 export default PostModal;

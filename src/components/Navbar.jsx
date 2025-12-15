@@ -59,35 +59,29 @@ const Navbar = () => {
 
         {/* ----- Desktop Navigation (hidden on small screens) ----- */}
         <nav className="hidden md:flex space-x-8">
-          {["Home", "About Us", "Our Services", "Gallery"].map(
-            (item, index) => {
-              const link =
-                index === 0
-                  ? "#home"
-                  : index === 1
-                  ? "#about"
-                  : index === 2
-                  ? "#services"
-                  : "/gallery";
-              return (
-                <a
-                  key={item}
-                  href={link}
-                  className="
-                    relative text-sm sm:text-base lg:text-lg 
-                    font-medium text-white 
-                    hover:text-gray-200 
-                    transition-all duration-200
-                    after:content-[''] after:absolute after:left-0 after:-bottom-1
-                    after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300
-                    hover:after:w-full
-                  "
-                >
-                  {item}
-                </a>
-              );
-            }
-          )}
+          {[
+            { name: "Home", href: "#home" },
+            { name: "About Us", href: "#about" },
+            { name: "Our Services", href: "#services" },
+            { name: "Contact", href: "#contact" },
+            { name: "Gallery", href: "/gallery" },
+          ].map(({ name, href }) => (
+            <a
+              key={name}
+              href={href}
+              className="
+                relative text-sm sm:text-base lg:text-lg 
+                font-medium text-white 
+                hover:text-gray-200 
+                transition-all duration-200
+                after:content-[''] after:absolute after:left-0 after:-bottom-1
+                after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300
+                hover:after:w-full
+              "
+            >
+              {name}
+            </a>
+          ))}
         </nav>
 
         {/* ----- Mobile Menu Button (hamburger / close icon) ----- */}
@@ -109,14 +103,15 @@ const Navbar = () => {
           "
         >
           {[
-            { name: "Home", id: "#home" },
-            { name: "About Us", id: "#about" },
-            { name: "Our Services", id: "#services" },
-            { name: "Gallery", id: "/gallery" },
-          ].map(({ name, id }) => (
+            { name: "Home", href: "#home" },
+            { name: "About Us", href: "#about" },
+            { name: "Our Services", href: "#services" },
+            { name: "Contact", href: "#contact" },
+            { name: "Gallery", href: "/gallery" },
+          ].map(({ name, href }) => (
             <a
               key={name}
-              href={id}
+              href={href}
               onClick={() => setMenuOpen(false)}
               className="text-lg text-white hover:text-gray-200 transition-colors duration-200"
             >
