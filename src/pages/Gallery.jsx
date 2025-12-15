@@ -10,7 +10,12 @@ const Gallery = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:5001/api/instagram")
+    // Use local backend during development, otherwise use deployed Render URL
+    const apiBase = import.meta.env.DEV
+      ? "http://localhost:5001"
+      : "https://detailing-site.onrender.com";
+
+    fetch(`${apiBase}/api/instagram`)
       .then((res) => res.json())
       .then((data) => {
         setPosts(data.data || []);
