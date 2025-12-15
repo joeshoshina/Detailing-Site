@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 # Mine
+token.json
 **/.env*
 node_modules/

@@ -311,15 +311,16 @@ app.get("/api/health", (req, res) => {
 // SERVER INITIALIZATION
 // ============================================
 
-app.listen(5001, () => {
+const PORT = process.env.PORT || 5001;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+
+app.listen(PORT, () => {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("Server running on port 5001");
+  console.log(`Server running on port ${PORT}`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("Instagram API: http://localhost:5001/api/instagram");
-  console.log("Health Check:  http://localhost:5001/api/health");
-  console.log(
-    "Clear Cache:   POST http://localhost:5001/api/instagram/clear-cache"
-  );
+  console.log(`Instagram API: ${BASE_URL}/api/instagram`);
+  console.log(`Health Check:  ${BASE_URL}/api/health`);
+  console.log(`Clear Cache:   POST ${BASE_URL}/api/instagram/clear-cache`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 });
 
