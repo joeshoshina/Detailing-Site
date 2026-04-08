@@ -45,9 +45,14 @@ import express from "express";
 import axios from "axios";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import { getCurrentToken, refreshInstagramToken } from "./refreshToken.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 const app = express();
 app.use(cors());
 
@@ -62,42 +67,38 @@ app.use(cors());
 
 let CLIENT_TOKEN;
 
-// Initialize token from storage
-try {
-  CLIENT_TOKEN = getCurrentToken();
-} catch (err) {
-  console.error("Startup Error:", err.message);
-  console.error(
-    "Please ensure you have a valid CLIENT_TOKEN in your .env file"
-  );
-  process.exit(1);
-}
-
 // Configure token refresh interval (default: 30 days)
 const REFRESH_INTERVAL_DAYS = parseInt(
-  process.env.IG_REFRESH_INTERVAL_DAYS || "30"
+  process.env.IG_REFRESH_INTERVAL_DAYS || "40",
 );
 const REFRESH_INTERVAL_MS = REFRESH_INTERVAL_DAYS * 24 * 60 * 60 * 1000;
 
-// Verify token validity on server startup
-refreshInstagramToken()
-  .then((token) => {
-    CLIENT_TOKEN = token;
-    console.log("Token verified and ready");
-  })
-  .catch((err) => {
-    console.error("Token refresh failed:", err.message);
-    // Continue with existing token
-  });
+async function initializeTokenManagement() {
+  try {
+    CLIENT_TOKEN = await getCurrentToken();
+  } catch (err) {
+    console.error("Startup Error:", err.message);
+    console.error(
+      "Please ensure you have a valid CLIENT_TOKEN in your .env file",
+    );
+    process.exit(1);
+  }
 
-// Schedule automatic token refresh
-setInterval(async () => {
   try {
     CLIENT_TOKEN = await refreshInstagramToken();
+    console.log("Token verified and ready");
   } catch (err) {
-    console.error("Scheduled refresh failed:", err.message);
+    console.error("Token refresh failed:", err.message);
   }
-}, REFRESH_INTERVAL_MS);
+
+  setInterval(async () => {
+    try {
+      CLIENT_TOKEN = await refreshInstagramToken();
+    } catch (err) {
+      console.error("Scheduled refresh failed:", err.message);
+    }
+  }, REFRESH_INTERVAL_MS);
+}
 
 // ============================================
 // CACHING SYSTEM
@@ -192,7 +193,7 @@ async function fetchInstagramData() {
           children: null, // No children for single media posts
         };
       }
-    })
+    }),
   );
 
   return enhancedPosts;
@@ -314,14 +315,23 @@ app.get("/api/health", (req, res) => {
 const PORT = process.env.PORT || 5001;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
-app.listen(PORT, () => {
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log(`Server running on port ${PORT}`);
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log(`Instagram API: ${BASE_URL}/api/instagram`);
-  console.log(`Health Check:  ${BASE_URL}/api/health`);
-  console.log(`Clear Cache:   POST ${BASE_URL}/api/instagram/clear-cache`);
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+async function startServer() {
+  await initializeTokenManagement();
+
+  app.listen(PORT, () => {
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log(`Server running on port ${PORT}`);
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log(`Instagram API: ${BASE_URL}/api/instagram`);
+    console.log(`Health Check:  ${BASE_URL}/api/health`);
+    console.log(`Clear Cache:   POST ${BASE_URL}/api/instagram/clear-cache`);
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  });
+}
+
+startServer().catch((err) => {
+  console.error("Fatal startup error:", err.message);
+  process.exit(1);
 });
 
 // ============================================
