@@ -42,7 +42,7 @@ const Gallery = () => {
             className="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200"
           >
             <img
-              src="https://cdn.zarlasites.com/logo/313e8157a5ef0d7afd436dfe9dfe53f462de17d1b2580c32a6730f6aa6953bd7"
+              src="/logo.png"
               alt="Logo"
               className="h-12 w-12 sm:h-14 sm:w-14 lg:h-20 lg:w-20 object-contain transition-all duration-300"
             />

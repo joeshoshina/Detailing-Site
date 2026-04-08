@@ -16,6 +16,15 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const TOKEN_PATH = path.resolve(__dirname, "token.json");
 
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Operation timed out")), ms);
+    }),
+  ]);
+}
+
 function readTokenFile() {
   try {
     return JSON.parse(fs.readFileSync(TOKEN_PATH, "utf-8"));
@@ -94,19 +103,26 @@ export async function refreshInstagramToken(force = false) {
     Date.now() - lastRefresh > (daysUntilExpiry - 5) * 24 * 60 * 60 * 1000;
 
   if (!needsRefresh) {
+    console.log("Token refresh skipped: current token is still valid.");
     return tokenData.CLIENT_TOKEN;
   }
 
   try {
-    const res = await axios.get(
-      `https://graph.instagram.com/refresh_access_token`,
-      {
+    console.log("Starting token refresh...");
+    console.log("Calling Instagram API...");
+
+    const res = await withTimeout(
+      axios.get(`https://graph.instagram.com/refresh_access_token`, {
+        timeout: 20000,
         params: {
           grant_type: "ig_refresh_token",
           access_token: tokenData.CLIENT_TOKEN,
         },
-      },
+      }),
+      25000,
     );
+
+    console.log("Instagram responded");
 
     const newToken = res.data.access_token;
     console.log("Token refreshed successfully!");

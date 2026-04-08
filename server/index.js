@@ -308,20 +308,27 @@ app.post("/api/internal/refresh-token", async (req, res) => {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  try {
-    CLIENT_TOKEN = await refreshInstagramToken(true);
+  const queuedAt = Date.now();
 
-    cache.data = null;
-    cache.timestamp = null;
+  res.json({
+    success: true,
+    message: "Refresh started",
+    queuedAt,
+  });
 
-    return res.json({
-      message: "Token refreshed successfully",
-      refreshedAt: Date.now(),
-    });
-  } catch (err) {
-    console.error("Manual refresh endpoint failed:", err.message);
-    return res.status(500).json({ error: "Token refresh failed" });
-  }
+  (async () => {
+    try {
+      console.log(
+        "Manual refresh endpoint accepted request; starting background refresh...",
+      );
+      CLIENT_TOKEN = await refreshInstagramToken(true);
+      cache.data = null;
+      cache.timestamp = null;
+      console.log("Background token refresh completed successfully.");
+    } catch (err) {
+      console.error("Background refresh failed:", err.message);
+    }
+  })();
 });
 
 /**

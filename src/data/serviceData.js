@@ -1,3 +1,9 @@
+import exteriorDetailImage from "../assets/exterior_detail.jpg";
+import interiorDetailImage from "../assets/interior_detail.jpg";
+import interiorExteriorImage from "../assets/interior_exterior.jpg";
+import paintCorrectionImage from "../assets/paint_correction.jpg";
+import carpetExtractionImage from "../assets/carpet_extraction.png";
+
 const services = [
   {
     id: 1,
@@ -11,7 +17,7 @@ Our standard exterior detail includes a pre-rinse and foam prewash to loosen dir
 Hard water spot removal, tar, or bug buildup may require additional charge.  
 **Price may vary by vehicle size and condition.**
     `,
-    image: "/assets/exterior.jpg",
+    image: exteriorDetailImage,
   },
   {
     id: 2,
@@ -24,7 +30,7 @@ We start with a full vacuum of seats, carpets, and floor mats, followed by a gen
 Additional charge may apply for excessive dirt, stains, or pet hair.  
 **Price may vary by vehicle size and condition.**
     `,
-    image: "/assets/interior.jpg",
+    image: interiorDetailImage,
   },
   {
     id: 3,
@@ -38,7 +44,7 @@ This full-service package combines the Exterior Detail and Interior Detail to de
 Recommended for vehicles that need balanced care inside and out.  
 **Price may vary by vehicle size and condition.**
     `,
-    image: "/assets/package.jpg",
+    image: interiorExteriorImage,
   },
   {
     id: 4,
@@ -51,7 +57,7 @@ This service includes everything in the Exterior Detail, plus a full paint enhan
 Severe scratches or paint defects may require additional stages or pricing.  
 **Price may vary by vehicle size and paint condition.**
     `,
-    image: "/assets/paint.jpg",
+    image: paintCorrectionImage,
   },
   {
     id: 5,
@@ -64,7 +70,7 @@ Includes everything in the Interior Detail, with added hot-water extraction to r
 Excessive staining, spills, or pet hair may require additional charge.  
 **Price may vary by vehicle size and condition.**
     `,
-    image: "/assets/extraction.jpg",
+    image: carpetExtractionImage,
   },
 ];
 
