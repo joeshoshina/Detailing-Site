@@ -2,7 +2,9 @@
 import argparse
 import json
 import os
+import ssl
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -19,8 +21,8 @@ def main() -> int:
     parser.add_argument(
         "--timeout",
         type=int,
-        default=30,
-        help="HTTP timeout in seconds (default: 30).",
+        default=90,
+        help="HTTP timeout in seconds (default: 90).",
     )
     args = parser.parse_args()
 
@@ -48,6 +50,25 @@ def main() -> int:
         )
         return 0
 
+    # Create SSL context that doesn't verify certificates
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+
+    # Wake up Render service first (free tier spins down after inactivity)
+    base_url = refresh_url.rsplit("/api/", 1)[0]
+    health_url = base_url + "/api/health"
+    print(f"Waking up Render service...")
+    wake_req = urllib.request.Request(health_url, method="GET")
+    try:
+        with urllib.request.urlopen(wake_req, timeout=args.timeout, context=ssl_context):
+            pass
+    except Exception:
+        pass  # Even if health check fails, continue to main request
+    print("Waiting 30 seconds for service to be ready...")
+    time.sleep(30)
+
+    print(f"Sending token refresh request...")
     request = urllib.request.Request(
         refresh_url,
         method="POST",
@@ -59,7 +80,7 @@ def main() -> int:
     )
 
     try:
-        with urllib.request.urlopen(request, timeout=args.timeout) as response:
+        with urllib.request.urlopen(request, timeout=args.timeout, context=ssl_context) as response:
             body = response.read().decode("utf-8")
             print(f"Status: {response.status}")
             print(body)
