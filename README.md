@@ -15,7 +15,7 @@ The React Compiler is not enabled on this template. To add it, see [this documen
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
-## Backend Token Refresh (Manual Workflow)
+## Backend Token Refresh (Automated + Manual)
 
 This project supports DB-backed Instagram token refresh in `server/`.
 
@@ -24,6 +24,7 @@ This project supports DB-backed Instagram token refresh in `server/`.
 - `CLIENT_TOKEN` (bootstrap fallback token)
 - `IG_REFRESH_INTERVAL_DAYS` (default refresh cadence)
 - `DATABASE_URL` (Render Postgres connection string)
+- `REFRESH_SECRET` (required for protected refresh endpoint)
 - `PORT` and `BASE_URL` (optional local/runtime config)
 
 ### Create token table
@@ -43,20 +44,52 @@ cd server
 npm run refresh:token
 ```
 
-### Refresh job command
+### Protected refresh endpoint (for external schedulers)
 
-Use this whenever you want to refresh the Instagram token manually:
+The backend exposes:
+
+- `POST /api/internal/refresh-token`
+- Header required: `x-refresh-secret: <REFRESH_SECRET>`
+
+### Python trigger script
+
+Use the included script to trigger the protected endpoint:
+
+```bash
+REFRESH_URL=https://detailing-site.onrender.com/api/internal/refresh-token \
+REFRESH_SECRET=your_secret \
+python scripts/refresh_token_job.py
+```
+
+Dry run (no request sent):
+
+```bash
+REFRESH_URL=https://detailing-site.onrender.com/api/internal/refresh-token \
+REFRESH_SECRET=your_secret \
+python scripts/refresh_token_job.py --dry-run
+```
+
+### GitHub Actions scheduler (free cron alternative)
+
+Workflow file: `.github/workflows/refresh-token.yml`
+
+Runs daily and can also be triggered manually.
+
+Set GitHub repo secrets:
+
+- `REFRESH_URL` = `https://detailing-site.onrender.com/api/internal/refresh-token`
+- `REFRESH_SECRET` = same value as Render backend `REFRESH_SECRET`
+
+### Manual fallback workflow (if needed)
+
+Use this whenever you want to refresh manually:
 
 ```bash
 cd server
 npm run refresh:token
 ```
 
-### Current production workflow (no cron)
-
-1. Run the refresh job command above.
-2. Redeploy/restart the Render backend service.
-3. Verify the API response:
+Then verify the API response:
 
 ```bash
 curl -sS 'https://detailing-site.onrender.com/api/instagram?refresh=true'

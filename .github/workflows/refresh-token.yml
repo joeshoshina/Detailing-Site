@@ -1,0 +1,27 @@
+name: Refresh Instagram Token
+
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh-token:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Trigger refresh endpoint
+        env:
+          REFRESH_URL: ${{ secrets.REFRESH_URL }}
+          REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
+        run: |
+          python scripts/refresh_token_job.py

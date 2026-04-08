@@ -286,6 +286,45 @@ app.post("/api/instagram/clear-cache", (req, res) => {
 });
 
 /**
+ * POST /api/internal/refresh-token
+ *
+ * Protected endpoint for external schedulers (GitHub Actions, cron-job.org, etc.)
+ * to trigger a token refresh without exposing token data.
+ *
+ * Required Header:
+ * - x-refresh-secret: must match process.env.REFRESH_SECRET
+ */
+app.post("/api/internal/refresh-token", async (req, res) => {
+  const providedSecret = req.headers["x-refresh-secret"];
+  const expectedSecret = process.env.REFRESH_SECRET;
+
+  if (!expectedSecret) {
+    return res.status(500).json({
+      error: "REFRESH_SECRET is not configured on the server",
+    });
+  }
+
+  if (providedSecret !== expectedSecret) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  try {
+    CLIENT_TOKEN = await refreshInstagramToken(true);
+
+    cache.data = null;
+    cache.timestamp = null;
+
+    return res.json({
+      message: "Token refreshed successfully",
+      refreshedAt: Date.now(),
+    });
+  } catch (err) {
+    console.error("Manual refresh endpoint failed:", err.message);
+    return res.status(500).json({ error: "Token refresh failed" });
+  }
+});
+
+/**
  * GET /api/health
  *
  * Health check endpoint for monitoring server status.
