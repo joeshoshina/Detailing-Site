@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
-/* Shared modal animations: use as `animate-fade-in` / `animate-scale-in` */
 @theme {
+  /* Brand palette: use as bg-brand, text-brand, from-ink, etc. */
+  --color-brand: #053a57;
+  --color-brand-dark: #021b2a;
+  --color-brand-tint: #e7f0f5;
+  --color-ink: #0a1625;
+  --color-ink-deep: #070d16;
+  --color-accent: #38bdf8;
+
+  /* Shared modal animations: use as `animate-fade-in` / `animate-scale-in` */
   --animate-fade-in: fade-in 0.25s ease-out;
   --animate-scale-in: scale-in 0.3s ease-out;
 
@@ -26,15 +34,33 @@
   }
 }
 
-html {
-  scroll-behavior: smooth;
+/* Visible keyboard focus everywhere; the light accent reads on dark and light */
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-section {
-  scroll-margin-top: 6rem;
-}
-@media (max-width: 768px) {
-  section {
-    scroll-margin-top: 4.5rem;
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Lock page scroll behind native modal dialogs (ServiceModal) */
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/* Keep anchored sections clear of the fixed navbar */
+section[id] {
+  scroll-margin-top: 5.5rem;
 }

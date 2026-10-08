@@ -3,19 +3,18 @@
 // Instagram long-lived tokens die 60 days after their last refresh. This job
 // refreshes the token once it's a week old and saves the new one to Redis, so
 // a missed or failed run still leaves ~50 days of slack. Running it twice is
-// harmless: the second run sees a recent refresh and skips.
+// harmless: the second run sees a recent refresh and skips. The daily Redis
+// read also keeps the free Upstash database from being archived as inactive.
+//
+// Backup: /api/instagram refreshes in the background if this job has missed
+// more than a few days (see FALLBACK_REFRESH_AFTER_MS there).
 //
 // Manual trigger (add ?force=1 to refresh regardless of age):
 //   curl -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/refresh-instagram-token
 
-import { refreshAccessToken } from "../_lib/instagram.js";
-import {
-  getTokenState,
-  hasTokenStore,
-  saveTokenState,
-} from "../_lib/tokenStore.js";
+import { DAY_MS, refreshIfDue } from "../_lib/refresh.js";
+import { getTokenState, hasTokenStore } from "../_lib/tokenStore.js";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const REFRESH_AFTER_MS = 7 * DAY_MS;
 
 const toIso = (ms) => (ms ? new Date(ms).toISOString() : null);
@@ -35,27 +34,17 @@ export async function GET(request) {
   }
 
   try {
-    const current = await getTokenState();
     const force = new URL(request.url).searchParams.has("force");
-    const age = current.refreshedAt ? Date.now() - current.refreshedAt : Infinity;
+    const result = await refreshIfDue(await getTokenState(), {
+      maxAgeMs: REFRESH_AFTER_MS,
+      force,
+    });
 
-    if (!force && age < REFRESH_AFTER_MS) {
-      return Response.json({
-        refreshed: false,
-        refreshedAt: toIso(current.refreshedAt),
-        expiresAt: toIso(current.expiresAt),
-      });
-    }
-
-    const { token, expiresAt } = await refreshAccessToken(current.token);
-    const refreshedAt = Date.now();
-    await saveTokenState({ token, seed: current.seed, refreshedAt, expiresAt });
-
-    console.log(`Instagram token refreshed, expires ${toIso(expiresAt)}`);
     return Response.json({
-      refreshed: true,
-      refreshedAt: toIso(refreshedAt),
-      expiresAt: toIso(expiresAt),
+      refreshed: result.refreshed,
+      ...(result.reason && { reason: result.reason }),
+      refreshedAt: toIso(result.refreshedAt),
+      expiresAt: toIso(result.expiresAt),
     });
   } catch (err) {
     console.error("Instagram token refresh failed:", err.message);

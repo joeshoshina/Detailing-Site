@@ -13,6 +13,7 @@
 import { createHash } from "node:crypto";
 
 const STORE_KEY = "instagram:token";
+const LOCK_KEY = "instagram:token:refresh-lock";
 
 function redisConfig() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -78,4 +79,21 @@ export async function saveTokenState({ token, seed, refreshedAt, expiresAt }) {
     STORE_KEY,
     JSON.stringify({ token, seed, refreshedAt, expiresAt }),
   ]);
+}
+
+/**
+ * Short-lived lock so two refreshes (cron + gallery fallback) never race.
+ * Not released on purpose: after a success the token is fresh anyway, and
+ * after a failure the TTL doubles as a retry backoff.
+ */
+export async function acquireRefreshLock(ttlSeconds = 300) {
+  const result = await redis([
+    "SET",
+    LOCK_KEY,
+    String(Date.now()),
+    "NX",
+    "EX",
+    String(ttlSeconds),
+  ]);
+  return result === "OK";
 }

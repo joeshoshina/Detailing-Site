@@ -30,9 +30,15 @@ export async function refreshAccessToken(token) {
     access_token: token,
   });
 
+  if (!body.access_token) {
+    throw new Error("Instagram refresh_access_token returned no token");
+  }
+  // expires_in is documented, but fall back to the documented 60 days
+  const expiresInSeconds = Number(body.expires_in) || 60 * 24 * 60 * 60;
+
   return {
     token: body.access_token,
-    expiresAt: Date.now() + body.expires_in * 1000,
+    expiresAt: Date.now() + expiresInSeconds * 1000,
   };
 }
 

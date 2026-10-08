@@ -4,15 +4,31 @@
 // to a day while revalidating, so Instagram is called a few times an hour at
 // most no matter how much traffic the gallery gets.
 
+import { waitUntil } from "@vercel/functions";
 import { fetchRecentPosts } from "./_lib/instagram.js";
-import { getTokenState } from "./_lib/tokenStore.js";
+import { DAY_MS, refreshIfDue } from "./_lib/refresh.js";
+import { getTokenState, hasTokenStore } from "./_lib/tokenStore.js";
+
+// The daily cron refreshes at 7 days. If the token is older than this, the
+// cron has missed several runs, so refresh here as a backup.
+const FALLBACK_REFRESH_AFTER_MS = 10 * DAY_MS;
 
 const CORS = { "Access-Control-Allow-Origin": "*" };
 
 export async function GET() {
   try {
-    const { token } = await getTokenState();
-    const posts = await fetchRecentPosts(token);
+    const state = await getTokenState();
+
+    if (hasTokenStore()) {
+      // Runs after the response is sent, so visitors never wait on it.
+      waitUntil(
+        refreshIfDue(state, { maxAgeMs: FALLBACK_REFRESH_AFTER_MS }).catch(
+          (err) => console.error("Fallback token refresh failed:", err.message),
+        ),
+      );
+    }
+
+    const posts = await fetchRecentPosts(state.token);
 
     return Response.json(
       { data: posts, count: posts.length },

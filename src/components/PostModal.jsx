@@ -11,6 +11,8 @@
 // - Dark letterboxing (#0b0b0b) for proper image aspect ratios
 // - Only closes via X button or ESC key (not by clicking outside)
 // - Background remains scrollable while modal is open
+// - Keyboard focus moves to the close button on open and returns to the
+//   post that opened it on close
 //
 // PROPS:
 // - post: {
@@ -32,7 +34,7 @@
 // - Uses Tailwind CSS utility classes
 // - Fixed modal height per breakpoint (media 50vh on mobile, 50vh total on desktop)
 // - Media background: #0b0b0b (dark letterboxing)
-// - Brand colors: #053a57 (primary), #021b2a (hover)
+// - Brand colors: brand / brand-dark tokens (see index.css)
 //
 // KEYBOARD SHORTCUTS:
 // - ESC: Close modal
@@ -55,6 +57,7 @@ const SWIPE_THRESHOLD_PX = 40;
 function PostModal({ post, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const touchStartX = useRef(null);
+  const closeButtonRef = useRef(null);
 
   // ============================================
   // MEDIA DATA PREPARATION
@@ -70,6 +73,15 @@ function PostModal({ post, onClose }) {
   // Circular navigation via modulo
   const goToNext = () => setCurrentIndex((prev) => (prev + 1) % count);
   const goToPrev = () => setCurrentIndex((prev) => (prev - 1 + count) % count);
+
+  // ============================================
+  // FOCUS MANAGEMENT
+  // ============================================
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    closeButtonRef.current?.focus();
+    return () => previouslyFocused?.focus?.({ preventScroll: true });
+  }, []);
 
   // ============================================
   // KEYBOARD NAVIGATION
@@ -120,6 +132,7 @@ function PostModal({ post, onClose }) {
         className="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row max-h-[90vh] lg:h-[50vh] pointer-events-auto animate-scale-in"
       >
         <button
+          ref={closeButtonRef}
           onClick={onClose}
           className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 bg-black/50 text-white rounded-full p-1.5 sm:p-2 hover:bg-black/70 transition-all"
           aria-label="Close modal"
@@ -189,7 +202,7 @@ function PostModal({ post, onClose }) {
             }
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#053a57] hover:text-[#021b2a] font-semibold text-lg sm:text-xl transition-colors"
+            className="text-brand hover:text-brand-dark font-semibold text-lg sm:text-xl transition-colors"
           >
             @{post.username || "unknown_user"}
           </a>
@@ -204,7 +217,7 @@ function PostModal({ post, onClose }) {
               href={post.permalink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:text-[#053a57] transition-colors"
+              className="flex items-center gap-1 hover:text-brand transition-colors"
             >
               <Instagram size={18} /> View on Instagram
             </a>

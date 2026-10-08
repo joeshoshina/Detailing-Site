@@ -1,19 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import App from "./App.jsx";
-import Booking from "./pages/Booking.jsx";
-import Gallery from "./pages/Gallery.jsx";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./AppRoutes.jsx";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const container = document.getElementById("root");
+const app = (
   <React.StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} /> {/* landing page */}
-        <Route path="/book" element={<Booking />} /> {/* reviews page */}
-        <Route path="/gallery" element={<Gallery />} /> {/* gallery page */}
-      </Routes>
+      <AppRoutes />
     </BrowserRouter>
   </React.StrictMode>
 );
+
+// Production pages arrive prerendered (scripts/prerender.js), so attach to the
+// existing HTML; the dev server serves an empty root, so render from scratch.
+if (container.firstElementChild) {
+  ReactDOM.hydrateRoot(container, app);
+} else {
+  ReactDOM.createRoot(container).render(app);
+}

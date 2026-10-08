@@ -1,8 +1,12 @@
 name: Instagram Health Check
 
 # Safety net for the Vercel cron that refreshes the Instagram token
-# (api/cron/refresh-instagram-token.js). Opens an issue if the token is close
-# to expiring or the gallery API is failing, and closes it once healthy again.
+# (api/cron/refresh-instagram-token.js). Opens an issue if automatic refresh
+# has stalled, the token is close to expiring, or the gallery API is failing,
+# and closes it once healthy again.
+#
+# GitHub disables scheduled workflows after 60 days without repo activity, so
+# every run re-enables this workflow to keep the schedule alive.
 #
 # Set the repo variable SITE_URL (Settings → Secrets and variables → Actions →
 # Variables) if the site moves off the default Vercel URL below.
@@ -14,6 +18,7 @@ on:
 
 permissions:
   issues: write
+  actions: write # keepalive: re-enable this workflow on each run
 
 jobs:
   check:
@@ -26,8 +31,18 @@ jobs:
           script: |
             const site = process.env.SITE_URL.replace(/\/$/, "");
             const label = "instagram-health";
-            const WARN_DAYS = 14;
+            const WARN_DAYS = 14; // days left before the token expires
+            const STALE_DAYS = 10; // cron refreshes weekly; older means it's failing
             const problems = [];
+            const { owner, repo } = context.repo;
+
+            try {
+              await github.rest.actions.enableWorkflow({
+                owner, repo, workflow_id: "instagram-health-check.yml",
+              });
+            } catch (err) {
+              core.warning(`Keepalive failed: ${err.message}`);
+            }
 
             const getJson = async (path) => {
               try {
@@ -39,7 +54,7 @@ jobs:
             };
 
             const health = await getJson("/api/health");
-            const { tokenStore, expiresAt } = health.body;
+            const { tokenStore, refreshedAt, expiresAt } = health.body;
             if (health.status !== 200) {
               problems.push(`\`/api/health\` returned ${health.status}: ${JSON.stringify(health.body)}`);
             } else if (tokenStore !== "connected") {
@@ -48,9 +63,15 @@ jobs:
               problems.push("The token has never been refreshed by the cron job yet.");
             } else {
               const daysLeft = (Date.parse(expiresAt) - Date.now()) / 86_400_000;
-              core.info(`Token expires ${expiresAt} (${daysLeft.toFixed(1)} days)`);
+              const daysSince = (Date.now() - Date.parse(refreshedAt)) / 86_400_000;
+              core.info(`Token refreshed ${refreshedAt}, expires ${expiresAt} (${daysLeft.toFixed(1)} days)`);
               if (daysLeft < WARN_DAYS) {
                 problems.push(`The token expires in ${daysLeft.toFixed(1)} days (${expiresAt}).`);
+              } else if (daysSince > STALE_DAYS) {
+                problems.push(
+                  `Automatic refresh has stalled: last refresh was ${daysSince.toFixed(0)} days ago ` +
+                  `(${refreshedAt}). The token still works until ${expiresAt}, so there's time to fix it.`,
+                );
               }
             }
 
@@ -59,7 +80,6 @@ jobs:
               problems.push(`\`/api/instagram\` returned ${posts.status} with ${posts.body.count ?? 0} posts.`);
             }
 
-            const { owner, repo } = context.repo;
             const { data: open } = await github.rest.issues.listForRepo({
               owner, repo, state: "open", labels: label,
             });
