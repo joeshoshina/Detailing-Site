@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import SectionHeading from "./SectionHeading";
 import PostCard from "./PostCard";
+import PostGrid from "./PostGrid";
 import PostModal from "./PostModal";
 import useInstagramPosts from "../hooks/useInstagramPosts";
 
@@ -24,6 +25,8 @@ const RecentWork = () => {
     return null;
   }
 
+  const previewPosts = posts.slice(0, PREVIEW_COUNT);
+
   return (
     <section id="work" className="bg-gray-50 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6">
@@ -31,23 +34,23 @@ const RecentWork = () => {
           Before-and-afters straight from our Instagram.
         </SectionHeading>
 
-        <div className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {status === "loading"
-            ? Array.from({ length: PREVIEW_COUNT }, (_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square rounded-sm bg-gray-200 animate-pulse"
-                />
-              ))
-            : posts
-                .slice(0, PREVIEW_COUNT)
-                .map((post) => (
+        <div className="mt-14">
+          <PostGrid count={status === "loading" ? PREVIEW_COUNT : previewPosts.length}>
+            {status === "loading"
+              ? Array.from({ length: PREVIEW_COUNT }, (_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-sm bg-gray-200 animate-pulse"
+                  />
+                ))
+              : previewPosts.map((post) => (
                   <PostCard
                     key={post.id}
                     post={post}
                     onClick={() => setSelectedPost(post)}
                   />
                 ))}
+          </PostGrid>
         </div>
 
         <div className="mt-10 text-center">

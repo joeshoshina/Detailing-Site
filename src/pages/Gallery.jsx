@@ -3,11 +3,14 @@ import { useState } from "react";
 import { Instagram } from "lucide-react";
 import PageHeader from "../components/PageHeader.jsx";
 import PostCard from "../components/PostCard.jsx";
+import PostGrid from "../components/PostGrid.jsx";
 import PostModal from "../components/PostModal.jsx";
 import Footer from "../components/Footer.jsx";
 import MobileCTA from "../components/MobileCTA.jsx";
 import useInstagramPosts from "../hooks/useInstagramPosts.js";
 import business from "../data/business.js";
+
+const SKELETON_COUNT = 6;
 
 const Gallery = () => {
   const { posts, status, retry } = useInstagramPosts();
@@ -41,18 +44,21 @@ const Gallery = () => {
           </a>
         </div>
 
-        {/* --- Gallery Grid --- */}
-        <div className="mx-auto mt-10 grid w-full max-w-6xl grid-cols-2 gap-3 px-3 pb-12 sm:gap-4 sm:px-6 lg:grid-cols-3">
-          {status === "loading" &&
-            Array.from({ length: 6 }, (_, i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-sm bg-gray-200 animate-pulse"
-              />
-            ))}
+        {/* --- Gallery Grid (column count adapts to the number of posts) --- */}
+        <div className="mt-10 px-3 pb-12 sm:px-6">
+          {status === "loading" && (
+            <PostGrid count={SKELETON_COUNT}>
+              {Array.from({ length: SKELETON_COUNT }, (_, i) => (
+                <div
+                  key={i}
+                  className="aspect-square rounded-sm bg-gray-200 animate-pulse"
+                />
+              ))}
+            </PostGrid>
+          )}
 
           {status === "error" && (
-            <div className="col-span-full flex flex-col items-center py-20 text-center text-gray-600">
+            <div className="flex flex-col items-center py-20 text-center text-gray-600">
               <p>We couldn't load our latest posts right now.</p>
               <div className="mt-4 flex flex-wrap justify-center gap-3">
                 <button
@@ -74,19 +80,20 @@ const Gallery = () => {
           )}
 
           {status === "ready" && posts.length === 0 && (
-            <p className="col-span-full py-20 text-center text-gray-600">
-              No posts available
-            </p>
+            <p className="py-20 text-center text-gray-600">No posts available</p>
           )}
 
-          {status === "ready" &&
-            posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onClick={() => setSelectedPost(post)}
-              />
-            ))}
+          {status === "ready" && posts.length > 0 && (
+            <PostGrid count={posts.length}>
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onClick={() => setSelectedPost(post)}
+                />
+              ))}
+            </PostGrid>
+          )}
         </div>
 
         {/* --- Booking CTA --- */}

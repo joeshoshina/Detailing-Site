@@ -60,6 +60,30 @@ body:has(dialog[open]) {
   overflow: hidden;
 }
 
+/* PostGrid: columns come from --cols-base/--cols-md set inline per post
+   count; flex-wrap + center keeps any partial last row centered */
+.post-grid {
+  --gap: 0.75rem;
+  --cols: var(--cols-base);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gap);
+}
+@media (min-width: 40rem) {
+  .post-grid {
+    --gap: 1rem;
+  }
+}
+@media (min-width: 48rem) {
+  .post-grid {
+    --cols: var(--cols-md);
+  }
+}
+.post-grid > li {
+  width: calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols));
+}
+
 /* Keep anchored sections clear of the fixed navbar */
 section[id] {
   scroll-margin-top: 5.5rem;

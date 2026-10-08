@@ -13,7 +13,7 @@ function PostCard({ post, onClick }) {
       type="button"
       onClick={onClick}
       aria-label={`Open post: ${post.caption?.slice(0, 80) || "Instagram post"}`}
-      className="group overflow-hidden rounded-sm shadow-lg transform transition-all duration-300 hover:scale-102 cursor-pointer relative aspect-square bg-gray-200"
+      className="group block w-full overflow-hidden rounded-sm shadow-lg transform transition-all duration-300 hover:scale-102 cursor-pointer relative aspect-square bg-gray-200"
     >
       {imageUrl ? (
         <img
