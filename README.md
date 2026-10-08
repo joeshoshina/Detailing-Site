@@ -5,6 +5,9 @@ Instagram-powered gallery. Everything runs on one Vercel project: the static
 site, the `/api` functions, and a daily cron that keeps the Instagram token
 alive.
 
+Open to-dos (launch checklist, things to confirm, cleanup): see
+[NOTES.md](NOTES.md).
+
 ```
 src/                  React app (/, /book, /gallery, /services/<slug>)
 src/seo.js            per-page titles, descriptions, structured data (keyword map)
