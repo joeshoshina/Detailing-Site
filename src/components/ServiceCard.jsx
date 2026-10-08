@@ -36,6 +36,7 @@ const ServiceCard = ({ title, price, description, image, onInfoClick }) => {
       <img
         src={image}
         alt={title}
+        loading="lazy"
         className="h-40 w-full object-cover rounded-md mb-4"
       />
 

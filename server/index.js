@@ -4,13 +4,12 @@
 //
 // PURPOSE:
 // Express server that fetches Instagram posts via Graph API with support
-// for carousel albums, caching, and automatic token refresh.
+// for carousel albums and in-memory caching.
 //
 // MAIN FEATURES:
 // - Fetches Instagram posts from connected business account
 // - Automatically handles carousel posts (multi-image/video albums)
 // - 10-minute cache system to reduce API rate limit usage
-// - Automatic token refresh (configured via environment variables)
 // - Graceful error handling with stale cache fallback
 // - Health check and cache management endpoints
 //
@@ -19,11 +18,9 @@
 // - axios: HTTP client for Instagram Graph API
 // - cors: Cross-origin resource sharing middleware
 // - dotenv: Environment variable management
-// - refreshToken.js: Custom token refresh logic
 //
 // ENVIRONMENT VARIABLES:
-// - CLIENT_TOKEN: Instagram Graph API access token (loaded via refreshToken.js)
-// - IG_REFRESH_INTERVAL_DAYS: Token refresh interval (default: 30 days)
+// - CLIENT_TOKEN: Instagram Graph API access token
 //
 // ENDPOINTS:
 // - GET  /api/instagram              : Fetch Instagram posts (with caching)
@@ -47,7 +44,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getCurrentToken, refreshInstagramToken } from "./refreshToken.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,48 +52,11 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 const app = express();
 app.use(cors());
 
-// ============================================
-// TOKEN MANAGEMENT SYSTEM
-// ============================================
-// Handles Instagram Graph API access token initialization
-// and automatic refresh on a scheduled interval.
-// Token is stored in CLIENT_TOKEN variable and updated
-// by refreshInstagramToken() function.
-// ============================================
+const CLIENT_TOKEN = process.env.CLIENT_TOKEN;
 
-let CLIENT_TOKEN;
-
-// Configure token refresh interval (default: 30 days)
-const REFRESH_INTERVAL_DAYS = parseInt(
-  process.env.IG_REFRESH_INTERVAL_DAYS || "40",
-);
-const REFRESH_INTERVAL_MS = REFRESH_INTERVAL_DAYS * 24 * 60 * 60 * 1000;
-
-async function initializeTokenManagement() {
-  try {
-    CLIENT_TOKEN = await getCurrentToken();
-  } catch (err) {
-    console.error("Startup Error:", err.message);
-    console.error(
-      "Please ensure you have a valid CLIENT_TOKEN in your .env file",
-    );
-    process.exit(1);
-  }
-
-  try {
-    CLIENT_TOKEN = await refreshInstagramToken();
-    console.log("Token verified and ready");
-  } catch (err) {
-    console.error("Token refresh failed:", err.message);
-  }
-
-  setInterval(async () => {
-    try {
-      CLIENT_TOKEN = await refreshInstagramToken();
-    } catch (err) {
-      console.error("Scheduled refresh failed:", err.message);
-    }
-  }, REFRESH_INTERVAL_MS);
+if (!CLIENT_TOKEN) {
+  console.error("Startup Error: CLIENT_TOKEN is not configured.");
+  process.exit(1);
 }
 
 // ============================================
@@ -286,52 +245,6 @@ app.post("/api/instagram/clear-cache", (req, res) => {
 });
 
 /**
- * POST /api/internal/refresh-token
- *
- * Protected endpoint for external schedulers (GitHub Actions, cron-job.org, etc.)
- * to trigger a token refresh without exposing token data.
- *
- * Required Header:
- * - x-refresh-secret: must match process.env.REFRESH_SECRET
- */
-app.post("/api/internal/refresh-token", async (req, res) => {
-  const providedSecret = req.headers["x-refresh-secret"];
-  const expectedSecret = process.env.REFRESH_SECRET;
-
-  if (!expectedSecret) {
-    return res.status(500).json({
-      error: "REFRESH_SECRET is not configured on the server",
-    });
-  }
-
-  if (providedSecret !== expectedSecret) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
-
-  const queuedAt = Date.now();
-
-  res.json({
-    success: true,
-    message: "Refresh started",
-    queuedAt,
-  });
-
-  (async () => {
-    try {
-      console.log(
-        "Manual refresh endpoint accepted request; starting background refresh...",
-      );
-      CLIENT_TOKEN = await refreshInstagramToken(true);
-      cache.data = null;
-      cache.timestamp = null;
-      console.log("Background token refresh completed successfully.");
-    } catch (err) {
-      console.error("Background refresh failed:", err.message);
-    }
-  })();
-});
-
-/**
  * GET /api/health
  *
  * Health check endpoint for monitoring server status.
@@ -361,9 +274,7 @@ app.get("/api/health", (req, res) => {
 const PORT = process.env.PORT || 5001;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
-async function startServer() {
-  await initializeTokenManagement();
-
+function startServer() {
   app.listen(PORT, () => {
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     console.log(`Server running on port ${PORT}`);
@@ -375,10 +286,7 @@ async function startServer() {
   });
 }
 
-startServer().catch((err) => {
-  console.error("Fatal startup error:", err.message);
-  process.exit(1);
-});
+startServer();
 
 // ============================================
 // API RESPONSE EXAMPLES

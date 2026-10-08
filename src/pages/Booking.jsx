@@ -1,24 +1,9 @@
-import { Link } from "react-router-dom";
+import PageHeader from "../components/PageHeader.jsx";
 
 const Booking = () => {
   return (
     <section className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-      {/* --- Header (Logo + Title) --- */}
-      <div className="fixed top-0 left-0 w-full z-50 p-4 bg-gradient-to-br from-[#0a1625] via-[#053a57] to-[#070d16] shadow-md flex justify-center">
-        <Link
-          to="/"
-          className="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200"
-        >
-          <img
-            src="/logo.png"
-            alt="Logo"
-            className="h-12 w-12 sm:h-14 sm:w-14 lg:h-20 lg:w-20 object-contain transition-all duration-300"
-          />
-          <span className="text-lg sm:text-xl lg:text-2xl font-bold text-white tracking-wide transition-all duration-300">
-            CR Auto Detailing
-          </span>
-        </Link>
-      </div>
+      <PageHeader title="Book an Appointment" />
 
       {/* --- Booking Section --- */}
       <div className="w-full max-w-3xl p-4 pt-40 pb-20 flex flex-col items-center">
@@ -30,6 +15,16 @@ const Booking = () => {
           className="w-full h-[700px] border-none rounded-xl shadow-lg"
           title="Setmore Booking"
         ></iframe>
+        <p className="mt-6 text-gray-600 text-center">
+          Prefer to talk it through? Call or text{" "}
+          <a
+            href="tel:+17478773788"
+            className="text-blue-600 hover:text-blue-700 hover:underline"
+          >
+            (747) 877-3788
+          </a>
+          .
+        </p>
       </div>
     </section>
   );

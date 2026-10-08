@@ -1,4 +1,6 @@
-import heroImg from "../assets/hero.png";
+import { Link } from "react-router-dom";
+import { Phone } from "lucide-react";
+import heroImg from "../assets/hero.webp";
 
 const Home = () => {
   return (
@@ -15,14 +17,22 @@ const Home = () => {
             {/* line break only on small screens */}
             the San Fernando Valley — Shine That Lasts
           </h1>
-          {/* Book now button */}
-          <a
-            href="/book"
-            className="bg-white text-black px-4 py-1 rounded-lg hover:border hover:border-white hover:text-white hover:bg-gradient-to-br from-[#0a1625] via-[#053a57] to-[#070d16] transition"
-          >
-            Book Now
-          </a>
-          {/* Phone number */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-4">
+            {/* Book now button */}
+            <Link
+              to="/book"
+              className="bg-white text-black font-semibold px-6 py-2.5 rounded-lg border border-white hover:text-white hover:bg-gradient-to-br from-[#0a1625] via-[#053a57] to-[#070d16] transition"
+            >
+              Book Now
+            </Link>
+            {/* Phone number */}
+            <a
+              href="tel:+17478773788"
+              className="flex items-center gap-2 text-white font-medium px-6 py-2.5 rounded-lg border border-white/70 hover:bg-white/10 transition"
+            >
+              <Phone size={18} /> (747) 877-3788
+            </a>
+          </div>
         </div>
       </section>
       <p className="py-20 px-8 text-lg justify-center max-w-2xl mx-auto text-gray-700">

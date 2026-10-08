@@ -4,7 +4,7 @@ const About = () => {
       id="about"
       className="text-center flex flex-col bg-gray-200 bg-contain py-20"
     >
-      <h1 className="text-2xl font-bold text-black mb-5">CR Auto Detailing</h1>
+      <h2 className="text-2xl font-bold text-black mb-5">CR Auto Detailing</h2>
       <p className="px-8 text-lg text-left max-w-2xl mx-auto text-gray-700 ">
         Hey, we’re Rich and Calum — two CSUN students with a drive to offer
         purpose. What started as us cleaning our own cars turned into a way to

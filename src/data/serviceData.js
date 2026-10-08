@@ -1,8 +1,8 @@
-import exteriorDetailImage from "../assets/exterior_detail.jpg";
-import interiorDetailImage from "../assets/interior_detail.jpg";
-import interiorExteriorImage from "../assets/interior_exterior.jpg";
-import paintCorrectionImage from "../assets/paint_correction.jpg";
-import carpetExtractionImage from "../assets/carpet_extraction.png";
+import exteriorDetailImage from "../assets/exterior_detail.webp";
+import interiorDetailImage from "../assets/interior_detail.webp";
+import interiorExteriorImage from "../assets/interior_exterior.webp";
+import paintCorrectionImage from "../assets/paint_correction.webp";
+import carpetExtractionImage from "../assets/carpet_extraction.webp";
 
 const services = [
   {

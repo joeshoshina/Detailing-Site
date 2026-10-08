@@ -1,0 +1,4 @@
+# Legacy Render backend, replaced by api/. Keeping it out of the upload stops
+# Vercel from ever detecting it as an Express app again.
+/server
+/scripts

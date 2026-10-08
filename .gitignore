@@ -27,3 +27,6 @@ dist-ssr
 token.json
 **/.env*
 node_modules/
+!.env.example
+.vercel
+

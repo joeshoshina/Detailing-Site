@@ -8,10 +8,20 @@
  * - Dropdown is left-aligned for better UX
  * - Uses TailwindCSS for styling and Lucide React for icons
  * - Scales logo, title, and links for desktop
+ * - "Book Now" call-to-action button on desktop and in the mobile menu
  */
 
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+
+const NAV_LINKS = [
+  { name: "Home", href: "#home" },
+  { name: "About Us", href: "#about" },
+  { name: "Our Services", href: "#services" },
+  { name: "Contact", href: "#contact" },
+  { name: "Gallery", href: "/gallery" },
+];
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false); // Triggers gradient when scrolled
@@ -45,7 +55,7 @@ const Navbar = () => {
           <a href="#home">
             <img
               src="/logo.png"
-              alt="Logo"
+              alt="CR Auto Detailing logo"
               className="h-12 w-12 sm:h-14 sm:w-14 lg:h-20 lg:w-20 object-contain transition-all duration-300"
             />
           </a>
@@ -58,14 +68,8 @@ const Navbar = () => {
         </div>
 
         {/* ----- Desktop Navigation (hidden on small screens) ----- */}
-        <nav className="hidden md:flex space-x-8">
-          {[
-            { name: "Home", href: "#home" },
-            { name: "About Us", href: "#about" },
-            { name: "Our Services", href: "#services" },
-            { name: "Contact", href: "#contact" },
-            { name: "Gallery", href: "/gallery" },
-          ].map(({ name, href }) => (
+        <nav className="hidden md:flex items-center space-x-8">
+          {NAV_LINKS.map(({ name, href }) => (
             <a
               key={name}
               href={href}
@@ -82,11 +86,19 @@ const Navbar = () => {
               {name}
             </a>
           ))}
+          <Link
+            to="/book"
+            className="px-4 py-1.5 rounded-lg bg-white text-[#053a57] font-semibold text-sm sm:text-base lg:text-lg hover:bg-gray-100 transition-colors"
+          >
+            Book Now
+          </Link>
         </nav>
 
         {/* ----- Mobile Menu Button (hamburger / close icon) ----- */}
         <button
           onClick={toggleMenu}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
           className="md:hidden text-white focus:outline-none transition-transform duration-200 active:scale-95"
         >
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -102,13 +114,7 @@ const Navbar = () => {
             pl-2          /* Small padding for visual balance */
           "
         >
-          {[
-            { name: "Home", href: "#home" },
-            { name: "About Us", href: "#about" },
-            { name: "Our Services", href: "#services" },
-            { name: "Contact", href: "#contact" },
-            { name: "Gallery", href: "/gallery" },
-          ].map(({ name, href }) => (
+          {NAV_LINKS.map(({ name, href }) => (
             <a
               key={name}
               href={href}
@@ -118,6 +124,12 @@ const Navbar = () => {
               {name}
             </a>
           ))}
+          <Link
+            to="/book"
+            className="mt-1 px-4 py-1.5 rounded-lg bg-white text-[#053a57] font-semibold text-lg"
+          >
+            Book Now
+          </Link>
         </nav>
       )}
     </div>

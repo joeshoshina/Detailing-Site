@@ -6,7 +6,7 @@ const Contact = () => {
       id="contact"
       className="text-center flex flex-col bg-gray-200 py-20"
     >
-      <h1 className="text-2xl font-bold mb-5">Get In Touch</h1>
+      <h2 className="text-2xl font-bold mb-5">Get In Touch</h2>
 
       <div className="flex flex-col items-center gap-5 text-lg max-w-md mx-auto">
         <a
